@@ -1,0 +1,47 @@
+@import "tailwindcss";
+
+@theme {
+  --color-bg: #FAFAFA;
+  --color-surface: #FFFFFF;
+  --color-ink: #14181C;
+  --color-ink-muted: #5B6470;
+  --color-border: #E4E7EB;
+  --color-accent: #0E7C7B;
+  --color-danger: #C0362C;
+  --color-success: #15803D;
+
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
+}
+
+@layer base {
+  :root {
+    --bg: #FAFAFA;
+    --surface: #FFFFFF;
+    --ink: #14181C;
+    --ink-muted: #5B6470;
+    --border: #E4E7EB;
+    --accent: #0E7C7B;
+    --danger: #C0362C;
+    --success: #15803D;
+  }
+
+  body {
+    @apply bg-[var(--bg)] text-[var(--ink)] font-sans antialiased;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply w-full h-12 bg-[var(--accent)] text-white font-medium rounded-lg flex items-center justify-center transition-opacity active:opacity-80 disabled:opacity-50;
+  }
+  .btn-secondary {
+    @apply w-full h-12 bg-[var(--surface)] text-[var(--ink)] border border-[var(--border)] font-medium rounded-lg flex items-center justify-center transition-opacity active:opacity-80;
+  }
+  .input-field {
+    @apply w-full h-12 px-4 bg-[var(--surface)] border border-[var(--border)] rounded-lg text-[var(--ink)] placeholder-[var(--ink-muted)] focus:outline-none focus:border-[var(--accent)] focus:ring-1 focus:ring-[var(--accent)];
+  }
+  .label-text {
+    @apply block text-sm font-medium text-[var(--ink)] mb-1;
+  }
+}

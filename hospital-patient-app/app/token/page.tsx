@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, Suspense } from 'react';
+import React, { useEffect, useState, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { getRegistration, API_URL } from '@/lib/api';
 import { getGeolocation, watchGeolocation } from '@/lib/geolocation';
@@ -21,12 +21,16 @@ function TokenScreenContent() {
   const [queuePosition, setQueuePosition] = useState<number | null>(null);
   
   const [pulse, setPulse] = useState(false);
+  const checkinRef = React.useRef(false);
 
   useEffect(() => {
     if (!phoneNumber) {
       router.push('/');
       return;
     }
+
+    if (checkinRef.current) return;
+    checkinRef.current = true;
 
     const init = async () => {
       try {

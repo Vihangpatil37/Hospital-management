@@ -38,6 +38,13 @@ export async function updateTokenAction(tokenId: string, action: 'call-next' | '
         method: 'POST',
         headers: getAuthHeaders()
     });
-    if (!res.ok) throw new Error(`Action ${action} failed`);
+    if (!res.ok) {
+        if (res.status === 401 && typeof window !== 'undefined') {
+            localStorage.removeItem('adminToken');
+            window.location.reload();
+        }
+        const err = await res.text().catch(() => 'Unknown error');
+        throw new Error(`Action ${action} failed: ${res.status} - ${err}`);
+    }
     return res.json();
 }

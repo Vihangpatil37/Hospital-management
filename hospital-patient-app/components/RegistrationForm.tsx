@@ -24,8 +24,10 @@ export default function RegistrationForm({ caseType }: RegistrationFormProps) {
 
     try {
       await registerPatient({ ...data, caseType });
-      // Redirect to token screen
-      router.push(`/token?phone=${data.phoneNumber}`);
+      setSuccess(true);
+      setTimeout(() => {
+        router.push('/');
+      }, 2000);
     } catch (err: any) {
       setError(err.message || 'Something went wrong');
     } finally {

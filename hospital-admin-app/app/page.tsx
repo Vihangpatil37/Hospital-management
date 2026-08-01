@@ -56,6 +56,21 @@ export default function AdminDashboard() {
              Logout
            </button>
         </header>
+        <div className="bg-[var(--surface)] border-b border-[var(--border)] flex">
+           <button 
+             onClick={() => setActiveTab('queue')}
+             className={`flex-1 py-3 text-center font-medium text-sm transition-colors ${activeTab === 'queue' ? 'border-b-2 border-[var(--ink)] text-[var(--ink)]' : 'text-[var(--ink-muted)] hover:text-[var(--ink)]'}`}
+           >
+             Live Queue
+           </button>
+           <button 
+             onClick={() => setActiveTab('registrations')}
+             className={`flex-1 py-3 text-center font-medium text-sm transition-colors ${activeTab === 'registrations' ? 'border-b-2 border-[var(--ink)] text-[var(--ink)]' : 'text-[var(--ink-muted)] hover:text-[var(--ink)]'}`}
+           >
+             Registrations
+           </button>
+        </div>
+
         <QueueBoard />
     </div>
   );

@@ -47,7 +47,7 @@ function TokenScreenContent() {
 
         if (res.status === 409) {
             const data = await res.json();
-            setError(`You are ${data.distance}m away. Please move closer to the hospital (within 70m).`);
+            setError(`You are ${data.distance}m away. You must be at the hospital to get a token. If you just registered from home, your registration is saved! You can close the app and tap "Get Token" on the home page when you arrive.`);
             setDistance(data.distance);
             setLoading(false);
             return;

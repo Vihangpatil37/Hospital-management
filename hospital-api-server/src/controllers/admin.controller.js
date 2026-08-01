@@ -22,7 +22,10 @@ const getLiveQueue = async (req, res) => {
       status: { $in: ['active', 'grace_period', 'called', 'in_consultation'] }
     })
     .sort({ tokenNumber: 1 })
-    .populate('registrationId');
+    .populate({
+      path: 'registrationId',
+      populate: { path: 'patientId' }
+    });
     
     res.status(200).json({ queue: tokens });
   } catch (error) {
@@ -85,26 +88,45 @@ const completeToken = async (req, res) => {
 };
 
 // Registrations Management
+const Patient = require('../models/Patient');
+
 const getRegistrations = async (req, res) => {
     try {
         const { search, type, status, window } = req.query;
-        let query = {};
         
-        if (window) query.registrationWindowId = window;
-        if (type) query.caseType = type;
-        if (status) query.status = status;
-        
+        // 1. If there is search or type filtering, find matching patients first
+        let patientQuery = {};
+        if (type) patientQuery.caseType = type;
         if (search) {
-            query.$or = [
+            patientQuery.$or = [
                 { name: { $regex: search, $options: 'i' } },
                 { phoneNumber: { $regex: search, $options: 'i' } },
                 { caseNumber: { $regex: search, $options: 'i' } }
             ];
         }
+
+        let patientIds = null;
+        if (Object.keys(patientQuery).length > 0) {
+            const patients = await Patient.find(patientQuery).select('_id');
+            patientIds = patients.map(p => p._id);
+        }
+
+        // 2. Query Registrations
+        let regQuery = {};
+        const targetWindow = window || getRegistrationWindowId();
+        regQuery.registrationWindowId = targetWindow;
+        if (status) regQuery.status = status;
+        if (patientIds !== null) {
+            regQuery.patientId = { $in: patientIds };
+        }
         
-        const registrations = await Registration.find(query).sort({ createdAt: -1 });
+        const registrations = await Registration.find(regQuery)
+            .populate('patientId')
+            .sort({ createdAt: -1 });
+            
         res.status(200).json({ registrations });
     } catch (error) {
+        console.error(error);
         res.status(500).json({ error: 'Internal server error' });
     }
 };
@@ -114,16 +136,30 @@ const updateRegistration = async (req, res) => {
         const { id } = req.params;
         const updates = req.body;
         
-        // whitelist fields
-        const allowedFields = ['name', 'villageName', 'phoneNumber', 'caseNumber', 'status'];
-        const safeUpdates = {};
+        const registration = await Registration.findById(id);
+        if (!registration) return res.status(404).json({ error: 'Registration not found' });
+
+        // Update Patient fields
+        const patientAllowedFields = ['name', 'villageName', 'phoneNumber', 'caseNumber'];
+        const patientUpdates = {};
         Object.keys(updates).forEach(k => {
-            if (allowedFields.includes(k)) safeUpdates[k] = updates[k];
+            if (patientAllowedFields.includes(k)) patientUpdates[k] = updates[k];
         });
+
+        if (Object.keys(patientUpdates).length > 0) {
+            await Patient.findByIdAndUpdate(registration.patientId, patientUpdates);
+        }
+
+        // Update Registration fields
+        if (updates.status) {
+            registration.status = updates.status;
+            await registration.save();
+        }
         
-        const registration = await Registration.findByIdAndUpdate(id, safeUpdates, { new: true });
-        res.status(200).json({ registration });
+        const updatedReg = await Registration.findById(id).populate('patientId');
+        res.status(200).json({ registration: updatedReg });
     } catch(err) {
+        console.error(err);
         res.status(500).json({ error: 'Internal server error' });
     }
 };

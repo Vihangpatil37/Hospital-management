@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { login } from '../lib/api';
 import QueueBoard from '../components/QueueBoard';
+import RegistrationsList from '../components/RegistrationsList';
 
 export default function AdminDashboard() {
   const [authed, setAuthed] = useState(false);
@@ -71,7 +72,7 @@ export default function AdminDashboard() {
            </button>
         </div>
 
-        <QueueBoard />
+        {activeTab === 'queue' ? <QueueBoard /> : <RegistrationsList />}
     </div>
   );
 }

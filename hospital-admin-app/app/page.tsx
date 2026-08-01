@@ -8,6 +8,7 @@ export default function AdminDashboard() {
   const [authed, setAuthed] = useState(false);
   const [pin, setPin] = useState('');
   const [error, setError] = useState('');
+  const [activeTab, setActiveTab] = useState<'queue' | 'registrations'>('queue');
 
   useEffect(() => {
     const token = localStorage.getItem('adminToken');

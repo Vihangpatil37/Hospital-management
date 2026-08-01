@@ -96,7 +96,7 @@ export default function QueueBoard() {
                                <div>
                                    <p className="font-semibold text-lg">{token.registrationId?.name || `Old Case ${token.registrationId?.caseNumber}`}</p>
                                    <p className="text-sm text-[var(--ink-muted)] mt-0.5">
-                                      Village: <span className="font-medium text-[var(--ink)]">{token.registrationId?.villageName || 'N/A'}</span>
+                                      Village: <span className="font-medium text-[var(--ink)]">{token.registrationId?.villageName || 'N/A'}</span> • Phone: <span className="font-medium text-[var(--ink)]">{token.registrationId?.phoneNumber}</span>
                                    </p>
                                    <p className="text-xs font-semibold text-[var(--accent)] capitalize mt-1 px-2 py-0.5 bg-[var(--accent)]/10 rounded-full inline-block">{token.status.replace('_', ' ')}</p>
                                </div>

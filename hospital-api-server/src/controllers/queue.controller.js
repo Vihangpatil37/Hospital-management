@@ -47,6 +47,22 @@ const checkin = async (req, res) => {
             { new: true }
         );
 
+        if (!updatedReg) {
+            // Another concurrent request may have already claimed it.
+            // Wait briefly to allow the other request to finish saving the token.
+            await new Promise(resolve => setTimeout(resolve, 500));
+            token = await QueueToken.findOne({ 
+                registrationId, 
+                status: { $in: ['active', 'grace_period', 'called', 'in_consultation'] }
+            });
+            
+            if (token) {
+                return res.status(200).json({ message: 'Checked in successfully', token });
+            } else {
+                return res.status(400).json({ error: 'Cannot generate token. Registration is already processed.' });
+            }
+        }
+
         // Generate new token number using Counter
         const counter = await Counter.findOneAndUpdate(
             { registrationWindowId: registration.registrationWindowId },

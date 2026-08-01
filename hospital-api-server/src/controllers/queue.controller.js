@@ -40,6 +40,13 @@ const checkin = async (req, res) => {
     });
 
     if (!token) {
+        // Attempt atomic lock on Registration to prevent race conditions
+        const updatedReg = await Registration.findOneAndUpdate(
+            { _id: registrationId, status: 'registered' },
+            { $set: { status: 'arrived' } },
+            { new: true }
+        );
+
         // Generate new token number using Counter
         const counter = await Counter.findOneAndUpdate(
             { registrationWindowId: registration.registrationWindowId },
@@ -54,12 +61,9 @@ const checkin = async (req, res) => {
             status: 'active'
         });
         await token.save();
-        
-        registration.status = 'arrived';
-        await registration.save();
 
         if (req.io) {
-            req.io.to('admin').emit('queue:new-token', { token, registration });
+            req.io.to('admin').emit('queue:new-token', { token, registration: updatedReg });
         }
     } else {
         // If they already have a token and it was in grace period, restore it

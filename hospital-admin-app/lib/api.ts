@@ -48,3 +48,52 @@ export async function updateTokenAction(tokenId: string, action: 'call-next' | '
     }
     return res.json();
 }
+
+export async function getPatients(query: string = '') {
+    const res = await fetch(`${API_URL}/api/admin/patients?query=${encodeURIComponent(query)}`, {
+        headers: getAuthHeaders()
+    });
+    if (!res.ok) {
+        if (res.status === 401 && typeof window !== 'undefined') {
+            localStorage.removeItem('adminToken');
+            window.location.reload();
+        }
+        throw new Error('Failed to fetch patients');
+    }
+    return res.json();
+}
+
+export async function getPatientStats() {
+    const res = await fetch(`${API_URL}/api/admin/patients/stats`, {
+        headers: getAuthHeaders()
+    });
+    if (!res.ok) throw new Error('Failed to fetch patient stats');
+    return res.json();
+}
+
+export async function getPatientById(id: string) {
+    const res = await fetch(`${API_URL}/api/admin/patients/${id}`, {
+        headers: getAuthHeaders()
+    });
+    if (!res.ok) throw new Error('Failed to fetch patient details');
+    return res.json();
+}
+
+export async function updatePatient(id: string, updates: any) {
+    const res = await fetch(`${API_URL}/api/admin/patients/${id}`, {
+        method: 'PATCH',
+        headers: getAuthHeaders(),
+        body: JSON.stringify(updates)
+    });
+    if (!res.ok) throw new Error('Failed to update patient');
+    return res.json();
+}
+
+export async function registerPatientAgain(id: string) {
+    const res = await fetch(`${API_URL}/api/admin/patients/${id}/register-again`, {
+        method: 'POST',
+        headers: getAuthHeaders()
+    });
+    if (!res.ok) throw new Error('Failed to re-register patient');
+    return res.json();
+}

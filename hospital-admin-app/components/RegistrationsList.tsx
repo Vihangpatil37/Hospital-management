@@ -56,16 +56,16 @@ export default function RegistrationsList() {
                     registrations.map(reg => (
                         <div key={reg._id} className="bg-[var(--surface)] p-4 rounded-lg shadow-sm border border-[var(--border)] flex justify-between items-start">
                             <div>
-                                <p className="font-bold text-lg">{reg.name || 'Old Case Patient'}</p>
+                                <p className="font-bold text-lg">{reg.patientId?.caseType === 'old' ? `Old Case ${reg.patientId?.caseNumber}` : (reg.patientId?.name || 'New Registration')}</p>
                                 <p className="text-sm text-[var(--ink-muted)] mt-1">
-                                    Village: <span className="font-medium text-[var(--ink)]">{reg.villageName || 'N/A'}</span>
+                                    Name: <span className="font-medium text-[var(--ink)]">{reg.patientId?.name || 'N/A'}</span> • Village: <span className="font-medium text-[var(--ink)]">{reg.patientId?.villageName || 'N/A'}</span>
                                 </p>
                                 <p className="text-sm text-[var(--ink-muted)]">
-                                    Phone: <span className="font-medium text-[var(--ink)]">{reg.phoneNumber}</span>
+                                    Phone: <span className="font-medium text-[var(--ink)]">{reg.patientId?.phoneNumber}</span>
                                 </p>
                                 <div className="mt-3 flex gap-2">
                                    <span className="text-xs px-2 py-1 bg-gray-100 rounded-full capitalize">{reg.status.replace('_', ' ')}</span>
-                                   <span className="text-xs px-2 py-1 bg-blue-50 text-blue-700 rounded-full capitalize">{reg.caseType} Case</span>
+                                   <span className="text-xs px-2 py-1 bg-blue-50 text-blue-700 rounded-full capitalize">{reg.patientId?.caseType} Case</span>
                                 </div>
                             </div>
                             <div className="text-right">

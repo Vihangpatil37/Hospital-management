@@ -1,4 +1,5 @@
 const Registration = require('../models/Registration');
+const Patient = require('../models/Patient');
 
 const registerPatient = async (req, res) => {
   try {
@@ -9,7 +10,7 @@ const registerPatient = async (req, res) => {
     if (!caseType || !['new', 'old'].includes(caseType)) {
       return res.status(400).json({ error: 'Valid caseType (new/old) is required' });
     }
-    if (!phoneNumber || !/^\d{10}$/.test(phoneNumber)) { // Basic 10-digit validation for demo
+    if (!phoneNumber || !/^\d{10}$/.test(phoneNumber)) { 
       return res.status(400).json({ error: 'Valid 10-digit phoneNumber is required' });
     }
 
@@ -23,24 +24,35 @@ const registerPatient = async (req, res) => {
       }
     }
 
-    // Check if phone number is already registered in this window
-    const existing = await Registration.findOne({ phoneNumber, registrationWindowId });
+    // Find or create Patient
+    let patient = await Patient.findOne({ phoneNumber });
+    if (!patient) {
+      patient = new Patient({
+        caseType,
+        name,
+        villageName,
+        phoneNumber,
+        caseNumber
+      });
+      await patient.save();
+    }
+
+    // Check if patient is already registered in this window
+    const existing = await Registration.findOne({ patientId: patient._id, registrationWindowId });
     if (existing) {
         return res.status(409).json({ error: 'This phone number is already registered for this week.' });
     }
 
     const registration = new Registration({
-      caseType,
-      name,
-      villageName,
-      phoneNumber,
-      caseNumber,
+      patientId: patient._id,
       registrationWindowId
     });
 
     await registration.save();
     
-    // Optionally emit event if io is accessible (we'll emit from routes or a service if needed, for MVP, optional)
+    // Populate for emission
+    await registration.populate('patientId');
+
     if (req.io) {
         req.io.to('admin').emit('registration:created', { registration });
     }
@@ -63,7 +75,12 @@ const getMyRegistration = async (req, res) => {
             return res.status(400).json({ error: 'phoneNumber is required' });
         }
 
-        const registration = await Registration.findOne({ phoneNumber, registrationWindowId });
+        const patient = await Patient.findOne({ phoneNumber });
+        if (!patient) {
+            return res.status(404).json({ error: 'No patient found with this phone number' });
+        }
+
+        const registration = await Registration.findOne({ patientId: patient._id, registrationWindowId }).populate('patientId');
         if (!registration) {
             return res.status(404).json({ error: 'No active registration found for this window' });
         }

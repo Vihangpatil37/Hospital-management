@@ -94,9 +94,9 @@ export default function QueueBoard() {
                           <div className="flex items-center gap-4">
                               <span className="text-3xl font-bold font-mono min-w-[3rem]">{token.tokenNumber.toString().padStart(3,'0')}</span>
                                <div>
-                                   <p className="font-semibold text-lg">{token.registrationId?.name || `Old Case ${token.registrationId?.caseNumber}`}</p>
+                                   <p className="font-semibold text-lg">{token.registrationId?.patientId?.caseType === 'old' ? `Old Case ${token.registrationId?.patientId?.caseNumber}` : (token.registrationId?.patientId?.name || 'New Registration')}</p>
                                    <p className="text-sm text-[var(--ink-muted)] mt-0.5">
-                                      Village: <span className="font-medium text-[var(--ink)]">{token.registrationId?.villageName || 'N/A'}</span> • Phone: <span className="font-medium text-[var(--ink)]">{token.registrationId?.phoneNumber}</span>
+                                      Name: <span className="font-medium text-[var(--ink)]">{token.registrationId?.patientId?.name || 'N/A'}</span> • Village: <span className="font-medium text-[var(--ink)]">{token.registrationId?.patientId?.villageName || 'N/A'}</span> • Phone: <span className="font-medium text-[var(--ink)]">{token.registrationId?.patientId?.phoneNumber}</span>
                                    </p>
                                    <p className="text-xs font-semibold text-[var(--accent)] capitalize mt-1 px-2 py-0.5 bg-[var(--accent)]/10 rounded-full inline-block">{token.status.replace('_', ' ')}</p>
                                </div>

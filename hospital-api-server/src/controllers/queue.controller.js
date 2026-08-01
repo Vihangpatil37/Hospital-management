@@ -150,7 +150,10 @@ const ping = async (req, res) => {
 const getToken = async (req, res) => {
     try {
         const { tokenId } = req.params;
-        const token = await QueueToken.findById(tokenId).populate('registrationId');
+        const token = await QueueToken.findById(tokenId).populate({
+            path: 'registrationId',
+            populate: { path: 'patientId' }
+        });
         if (!token) {
             return res.status(404).json({ error: 'Token not found' });
         }

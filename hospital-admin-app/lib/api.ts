@@ -22,7 +22,14 @@ export async function getLiveQueue() {
     const res = await fetch(`${API_URL}/api/admin/queue/live`, {
         headers: getAuthHeaders()
     });
-    if (!res.ok) throw new Error('Failed to fetch queue');
+    if (!res.ok) {
+        if (res.status === 401 && typeof window !== 'undefined') {
+            localStorage.removeItem('adminToken');
+            window.location.reload();
+        }
+        const err = await res.text().catch(() => 'Unknown error');
+        throw new Error(`Failed to fetch queue: ${res.status} - ${err}`);
+    }
     return res.json();
 }
 

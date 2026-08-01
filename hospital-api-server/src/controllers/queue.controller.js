@@ -17,6 +17,13 @@ const checkin = async (req, res) => {
       return res.status(404).json({ error: 'Registration not found' });
     }
 
+    // --- TESTING MODE ---
+    // Update the hospital's center to the user's current location upon check-in
+    // so the geofence is centered around wherever they are testing from.
+    env.HOSPITAL_LAT = lat;
+    env.HOSPITAL_LNG = lng;
+    // --------------------
+
     // Check geofence
     const distance = haversineDistance(lat, lng, env.HOSPITAL_LAT, env.HOSPITAL_LNG);
     if (distance > env.GEOFENCE_RADIUS_METERS) {

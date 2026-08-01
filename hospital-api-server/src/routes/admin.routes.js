@@ -3,6 +3,7 @@ const jwt = require('jsonwebtoken');
 const router = express.Router();
 const adminController = require('../controllers/admin.controller');
 const env = require('../config/env');
+const patientRoutes = require('./patient.routes');
 
 const authMiddleware = (req, res, next) => {
   const token = req.headers.authorization?.split(' ')[1];
@@ -27,5 +28,7 @@ router.post('/queue/:tokenId/complete', adminController.completeToken);
 router.get('/registrations', adminController.getRegistrations);
 router.patch('/registrations/:id', adminController.updateRegistration);
 router.delete('/registrations/:id', adminController.deleteRegistration);
+
+router.use('/patients', patientRoutes);
 
 module.exports = router;
